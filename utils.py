@@ -2,6 +2,20 @@ from PIL import Image
 from torchvision import transforms
 from torchvision.datasets import CIFAR10
 
+# set size = 32 for CIFAR10, size = 272 for ADP
+size = 272
+
+train_transform = transforms.Compose([
+    transforms.RandomResizedCrop(size=size),
+    transforms.RandomHorizontalFlip(p=0.5),
+    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
+    transforms.RandomGrayscale(p=0.2),
+    transforms.ToTensor(), ])
+
+test_transform = transforms.Compose([
+    transforms.Resize(size=size),
+    transforms.ToTensor(), ])
+
 
 class CIFAR10Pair(CIFAR10):
     """CIFAR10 Dataset.
@@ -19,16 +33,3 @@ class CIFAR10Pair(CIFAR10):
             target = self.target_transform(target)
 
         return pos_1, pos_2, target
-
-
-train_transform = transforms.Compose([
-    transforms.RandomResizedCrop(32),
-    transforms.RandomHorizontalFlip(p=0.5),
-    transforms.RandomApply([transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)], p=0.8),
-    transforms.RandomGrayscale(p=0.2),
-    transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])])
-
-test_transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])])
