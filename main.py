@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 import utils
 from model import Model
-
+from ADPDataset import ADPDataset
 
 # train for one epoch to learn unique features
 def train(net, data_loader, train_optimizer):
@@ -95,6 +95,8 @@ if __name__ == '__main__':
     parser.add_argument('--k', default=200, type=int, help='Top k most similar images used to predict the label')
     parser.add_argument('--batch_size', default=512, type=int, help='Number of images in each mini-batch')
     parser.add_argument('--epochs', default=500, type=int, help='Number of sweeps over the dataset to train')
+    parser.add_argument('--dataset',dest='dataset',default='CIFAR10',type=str,help='Dataset to train on')
+    parser.add_argument('--dataset_dir',dest='dataset_dir',default='./datasets',type=str,help='Path to dataset save location')
 
     # args parse
     args = parser.parse_args()
@@ -102,13 +104,38 @@ if __name__ == '__main__':
     batch_size, epochs = args.batch_size, args.epochs
 
     # data prepare
-    train_data = utils.CIFAR10Pair(root='data', train=True, transform=utils.train_transform, download=True)
-    train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, pin_memory=True,
-                              drop_last=True)
-    memory_data = utils.CIFAR10Pair(root='data', train=True, transform=utils.test_transform, download=True)
-    memory_loader = DataLoader(memory_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
-    test_data = utils.CIFAR10Pair(root='data', train=False, transform=utils.test_transform, download=True)
-    test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
+    if(args.dataset == "CIFAR10"):
+        train_data = utils.CIFAR10Pair(root='data', train=True, transform=utils.train_transform, download=True)
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, pin_memory=True,
+                                  drop_last=True)
+        memory_data = utils.CIFAR10Pair(root='data', train=True, transform=utils.test_transform, download=True)
+        memory_loader = DataLoader(memory_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
+        test_data = utils.CIFAR10Pair(root='data', train=False, transform=utils.test_transform, download=True)
+        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
+    elif(args.dataset == "ADP"):
+        train_data = ADPDataset(
+            level="L3",
+            root=args.dataset_dir,
+            split='train',
+            transform=utils.train_transform
+        )
+        train_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True, num_workers=16, pin_memory=True,
+                                  drop_last=True)
+        memory_data = ADPDataset(
+            level="L3",
+            root=args.dataset_dir,
+            split='train',
+            transform=utils.test_transform
+        )
+        memory_loader = DataLoader(memory_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
+        test_data = ADPDataset(
+            level="L3",
+            root=args.dataset_dir,
+            split='valid',
+            transform=utils.test_transform
+        )
+        test_loader = DataLoader(test_data, batch_size=batch_size, shuffle=False, num_workers=16, pin_memory=True)
+
 
     # model setup and optimizer config
     model = Model(feature_dim).cuda()
