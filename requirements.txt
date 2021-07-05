@@ -1,0 +1,8 @@
+torch
+torchvision
+thop
+tensorboard
+pandas
+numpy
+tqdm
+typing
