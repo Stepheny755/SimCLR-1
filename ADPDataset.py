@@ -141,8 +141,8 @@ class ADPDataset(Dataset):
 
         sample = self.loader(path)  # Loading image
         if self.transform is not None:  # PyTorch implementation
-            sample1 = self.transform(sample1)
-            sample2 = self.transform(sample2)
+            sample1 = self.transform(sample)
+            sample2 = self.transform(sample)
 
         return sample1, sample2, torch.tensor(label)
 
