@@ -141,13 +141,10 @@ class ADPDataset(Dataset):
 
         sample = self.loader(path)  # Loading image
         if self.transform is not None:  # PyTorch implementation
-            sample = self.transform(sample)
+            sample1 = self.transform(sample1)
+            sample2 = self.transform(sample2)
 
-        return sample, torch.tensor(label)
+        return sample1, sample2, torch.tensor(label)
 
     def __len__(self) -> int:
         return len(self.full_image_paths)
-
-
-
-
